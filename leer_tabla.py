@@ -135,27 +135,33 @@ def pantalla_historial():
 
     for fila in filas:
         c = fila.find_all("td")
-        if len(c) < 4:
+        if len(c) < 9:
             continue
 
         materia = c[2].get_text(strip=True)
         codigo_mat = c[1].get_text(strip=True)
         creditos = int(to_float(c[3].get_text(strip=True)))
 
-        p1 = p2 = p3 = None
-        if len(c) >= 7:
-            p1 = to_float(c[4].get_text(strip=True))
-            p2 = to_float(c[5].get_text(strip=True))
-            p3 = to_float(c[6].get_text(strip=True))
+        # Cortes (pueden o no existir)
+        p1 = to_float(c[4].get_text(strip=True))
+        p2 = to_float(c[5].get_text(strip=True))
+        p3 = to_float(c[6].get_text(strip=True))
 
-        if any(n is not None and n > 0 for n in [p1, p2, p3]):
-            final_raw = 0.3*(p1 or 0) + 0.3*(p2 or 0) + 0.4*(p3 or 0)
-            final = redondear_nota(final_raw)
+        # DEFINITIVA REAL (la verdad)
+        def_raw = to_float(c[8].get_text(strip=True))
+
+        # Si existe definitiva, ESA es la nota
+        if def_raw > 0:
+            final = redondear_nota(def_raw)
 
             suma += creditos * final
             total_creditos += creditos
 
-            color = "#e74c3c" if final < 2.9 else "#f39c12" if final <= 3.5 else "#2ecc71"
+            color = (
+                "#e74c3c" if final < 2.9 else
+                "#f39c12" if final <= 3.5 else
+                "#2ecc71"
+            )
         else:
             final = None
 
